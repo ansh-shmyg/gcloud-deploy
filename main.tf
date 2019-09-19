@@ -253,6 +253,13 @@ resource "local_file" "spinnaker_install_sh" {
   filename = "create-spin-kub-file.sh"
 }
 
+#resource "local_file" "istio_chart" {
+#  content = data.template_file.istio_chart.rendered
+#  filename = "istio-chart-template.yaml"
+#}
+
+  
+  
 resource "google_service_account" "spinnaker-store-sa" {
   account_id   = "spinnaker-store-sa-id"
   display_name = "Spinnaker-store-sa"
