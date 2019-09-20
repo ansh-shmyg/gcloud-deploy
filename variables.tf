@@ -6,7 +6,7 @@
 variable "project" {
   description = "The project ID to host the database in."
   type        = string
-  default     = "gcpssproject-248009"
+  default     = "istio-253412"
 }
 
 variable "region" {
@@ -72,11 +72,11 @@ variable "cluster_name" {
   default = "gke-gevops"
 }
 variable "project_name" {
-  default = "gcpssproject-248009"
+  default = "istio-253412"
 }
 
 variable "gloud_creds_file" {
-  default = "~/.gcloud/gcpssproject-248009-54dc60693c76.json"
+  default = "~/istio-5ff7ac95874a.json"
 }
 
 variable "machine_type_cluster" {
