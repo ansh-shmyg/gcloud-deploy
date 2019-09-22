@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: armory-halyard
+  namespace: spinnaker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: armory-halyard
+  template:
+    metadata:
+      labels:
+        app: armory-halyard
+    spec:
+      volumes:
+        - name: spin-secrets
+          secret:
+            secretName: spin-secrets
+            items:
+              - key: spinnaker-kubeconfig
+                path: kubeconfig
+              - key: spinnaker-gsc.json
+                path: google-sa.json
+      containers:
+      - image: docker.io/armory/halyard-armory:1.7.1
+        name: armory-halyard
+        ports: 
+          - containerPort: 8064
+        volumeMounts:
+          - name: spin-secrets
+            mountPath: /home/spinnaker/secrests
+            readOnly: true
+      serviceAccountName: spinnaker-service-account
+      restartPolicy: Always
