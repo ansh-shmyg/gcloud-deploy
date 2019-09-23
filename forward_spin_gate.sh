@@ -13,8 +13,13 @@ do
 		exit
 	fi
 done
+PROM_POD=$(kubectl -n istio-system get pod -l app=prometheus --kubeconfig=kubeconfig -ojsonpath='{.items[0].metadata.name}')
+GRAF_POD=$(kubectl -n istio-system get pod -l app=grafana --kubeconfig=kubeconfig -ojsonpath='{.items[0].metadata.name}')
 GATE_POD=$(kubectl -n spinnaker get pod -l cluster=spin-gate --kubeconfig=kubeconfig -ojsonpath='{.items[0].metadata.name}')
-kubectl -n spinnaker port-forward ${GATE_POD} 8084 --kubeconfig=kubeconfig >> /dev/null 2>&1 & 
+
+kubectl -n spinnaker port-forward ${PROM_POD} 9090 --kubeconfig=kubeconfig >> /dev/null 2>&1 & 
+kubectl -n spinnaker port-forward ${GRAF_POD} 3000 --kubeconfig=kubeconfig >> /dev/null 2>&1 &
+kubectl -n spinnaker port-forward ${GATE_POD} 8084 --kubeconfig=kubeconfig >> /dev/null 2>&1 &
 sleep 5
 echo "Creating spinnaker applications"
 spin application save --application-name logicapp --owner-email devops-kv53@softserve.com --cloud-providers "kubernetes" --gate-endpoint http://localhost:8084
