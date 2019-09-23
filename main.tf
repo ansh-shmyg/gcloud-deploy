@@ -411,6 +411,8 @@ resource "null_resource" "configure_tiller_spinnaker" {
     command = <<LOCAL_EXEC
 bash create-spin-kub-file.sh
 kubectl config use-context ${var.cluster_name} --kubeconfig=${local_file.kubeconfig.filename}
+kubectl create ns istio-system --kubeconfig=${local_file.kubeconfig.filename}
+helm install istio --name istio --namespace --kubeconfig=${local_file.kubeconfig.filename}
 kubectl apply -f create-helm-service-account.yml --kubeconfig=${local_file.kubeconfig.filename}
 helm init --service-account helm --upgrade --wait --kubeconfig=${local_file.kubeconfig.filename}
 kubectl create ns ${var.ISTIO_NAMESPACE} --kubeconfig=${local_file.kubeconfig.filename}
