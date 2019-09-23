@@ -23,7 +23,7 @@ helm upgrade --install istio istio.io/istio \
   --set mixer.telemetry.enabled=true \
   --set pilot.enabled=true \
   --set prometheus.enabled=true \
-  --set tracing.enabled=false \
+  --set tracing.enabled=true \
   --set kiali.enabled=false \
   --set servicegraph.enabled=false \
   --set grafana.enabled=true \
