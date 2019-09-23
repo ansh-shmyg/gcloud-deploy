@@ -116,3 +116,16 @@ resource "random_id" "username" {
 resource "random_id" "password" {
   byte_length = 16
 }
+variable "STACK_NAMESPACE" {
+  default = "default"
+}
+variable "ISTIO_NAMESPACE" {
+  default = "istio-system"
+}
+variable "ISTIO_IMAGE_TAG" {
+  default = "release-1.1-20190213-09-16"
+}
+variable "ISTIO_CHART_REPO" {
+  default = "https://gcsweb.istio.io/gcs/istio-prerelease/prerelease/1.1.0-snapshot.6/charts/"
+}
+
