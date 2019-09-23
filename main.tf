@@ -411,43 +411,9 @@ resource "null_resource" "configure_tiller_spinnaker" {
     command = <<LOCAL_EXEC
 bash create-spin-kub-file.sh
 kubectl config use-context ${var.cluster_name} --kubeconfig=${local_file.kubeconfig.filename}
-kubectl create ns istio-system --kubeconfig=${local_file.kubeconfig.filename}
-helm install istio --name istio --namespace --kubeconfig=${local_file.kubeconfig.filename}
 kubectl apply -f create-helm-service-account.yml --kubeconfig=${local_file.kubeconfig.filename}
 helm init --service-account helm --upgrade --wait --kubeconfig=${local_file.kubeconfig.filename}
-kubectl create ns ${var.ISTIO_NAMESPACE} --kubeconfig=${local_file.kubeconfig.filename}
-helm repo add istio.io ${var.ISTIO_CHART_REPO} 
-helm upgrade --install istio-init istio.io/istio-init --namespace ${var.ISTIO_NAMESPACE} --kubeconfig=${local_file.kubeconfig.filename}
-sleep 25s
-helm upgrade --install istio istio.io/istio \
-  --namespace ${var.ISTIO_NAMESPACE} \
-  --set global.tag=${var.ISTIO_IMAGE_TAG} \
-  --set galley.enabled=true \
-  --set security.enabled=true \
-  --set mixer.policy.enabled=true \
-  --set mixer.telemetry.enabled=true \
-  --set pilot.enabled=true \
-  --set prometheus.enabled=true \
-  --set tracing.enabled=false \
-  --set kiali.enabled=false \
-  --set servicegraph.enabled=false \
-  --set grafana.enabled=true \
-  --set ingress.autoscaleMin=2 \
-  --set ingress.replicaCount=2 \
-  --set gateways.istio-ingressgateway.autoscaleMin=2 \
-  --set gateways.istio-ingressgateway.replicaCount=2 \
-  --set mixer.istio-policy.autoscaleEnabled=true \
-  --set global.controlPlaneSecurityEnabled=false \
-  --set global.mtls.enabled=false \
-  --set global.outboundTrafficPolicy.mode=ALLOW_ANY \
-  --set global.defaultResources.requests.memory=50Mi \
-  --set global.defaultResources.requests.cpu=50m \
-  --set global.proxy.resources.requests.memory=50Mi \
-  --set global.proxy.resources.requests.cpu=50m \
-  --set sidecarInjectorWebhook.enabled=true \ 
-  --kubeconfig=${local_file.kubeconfig.filename}
-kubectl label namespace ${var.STACK_NAMESPACE} istio-injection=enabled --overwrite --kubeconfig=${local_file.kubeconfig.filename}
-
+bash template/create-istio.sh
 helm install -n spin stable/spinnaker --namespace spinnaker -f ${local_file.spinnaker_chart.filename} --timeout 600 --version 1.8.1 --wait --kubeconfig=${local_file.kubeconfig.filename}
 bash forward_spin_gate.sh
 LOCAL_EXEC
