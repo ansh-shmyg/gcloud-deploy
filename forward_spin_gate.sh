@@ -17,8 +17,8 @@ PROM_POD=$(kubectl -n istio-system get pod -l app=prometheus --kubeconfig=kubeco
 GRAF_POD=$(kubectl -n istio-system get pod -l app=grafana --kubeconfig=kubeconfig -ojsonpath='{.items[0].metadata.name}')
 GATE_POD=$(kubectl -n spinnaker get pod -l cluster=spin-gate --kubeconfig=kubeconfig -ojsonpath='{.items[0].metadata.name}')
 
-kubectl -n spinnaker port-forward ${PROM_POD} 9090 --kubeconfig=kubeconfig >> /dev/null 2>&1 & 
-kubectl -n spinnaker port-forward ${GRAF_POD} 3000 --kubeconfig=kubeconfig >> /dev/null 2>&1 &
+kubectl -n istio-system port-forward ${PROM_POD} 9090 --kubeconfig=kubeconfig >> /dev/null 2>&1 & 
+kubectl -n istio-system port-forward ${GRAF_POD} 3000 --kubeconfig=kubeconfig >> /dev/null 2>&1 &
 kubectl -n spinnaker port-forward ${GATE_POD} 8084 --kubeconfig=kubeconfig >> /dev/null 2>&1 &
 sleep 5
 echo "Creating spinnaker applications"
