@@ -7,11 +7,26 @@ ISTIO_CHART_REPO=https://gcsweb.istio.io/gcs/istio-prerelease/prerelease/1.1.0-s
 
 
 # Istio init
-kubectl create ns $ISTIO_NAMESPACE
-helm repo add istio.io $ISTIO_CHART_REPO
-helm upgrade --install istio-init istio.io/istio-init --namespace $ISTIO_NAMESPACE
+kubectl create ns $ISTIO_NAMESPACE --kubeconfig=kubeconfig
+helm repo add istio.io $ISTIO_CHART_REPO 
+helm upgrade --install istio-init istio.io/istio-init --namespace $ISTIO_NAMESPACE --kubeconfig=kubeconfig
 
 sleep 25s
+
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Secret
+metadata:
+  name: grafana
+  namespace: $NAMESPACE
+  labels:
+    app: grafana
+type: Opaque
+data:
+  username: YWRtaW4=
+  passphrase: MWYyZDFlMmU2N2Rm
+EOF
+
 
 # Istio install
 helm upgrade --install istio istio.io/istio \
@@ -40,8 +55,11 @@ helm upgrade --install istio istio.io/istio \
   --set global.proxy.resources.requests.memory=50Mi \
   --set global.proxy.resources.requests.cpu=50m \
   --set sidecarInjectorWebhook.enabled=true \
-  # (...)
+  --kubeconfig=kubeconfig
+
+ 
   # see: https://github.com/istio/istio/tree/master/install/kubernetes/helm/istio#configuration
 
-kubectl label namespace $STACK_NAMESPACE istio-injection=enabled --overwrite
+kubectl label namespace $STACK_NAMESPACE istio-injection=enabled --overwrite --kubeconfig=kubeconfig
+
 
