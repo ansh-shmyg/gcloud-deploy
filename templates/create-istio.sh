@@ -13,7 +13,7 @@ helm upgrade --install istio-init istio.io/istio-init --namespace $ISTIO_NAMESPA
 
 sleep 25s
 
-cat <<EOF | kubectl apply -f -
+cat <<EOF | kubectl --kubeconfig=kubeconfig apply -f -
 apiVersion: v1
 kind: Secret
 metadata:
