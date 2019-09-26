@@ -5,6 +5,7 @@ CORE_USER=core-spinnaker-service-account
 KUBECONFIG_FILE=spinnaker-kubeconfig
 SPINNAKER_SA=create-spinnaker-sa.yaml
 
+# Create spinnaker kubeconfig file
 kubectl --kubeconfig=kubeconfig apply -f $SPINNAKER_SA
 CORE_TOKEN=$(kubectl  --kubeconfig=kubeconfig  get secret \
     $(kubectl --kubeconfig=kubeconfig get serviceaccount spinnaker-service-account \
@@ -22,4 +23,7 @@ kubectl config --kubeconfig=$KUBECONFIG_FILE set-cluster $CORE_CLUSTER \
 
 kubectl config --kubeconfig=$KUBECONFIG_FILE set-credentials $CORE_USER --token $CORE_TOKEN
 kubectl config --kubeconfig=$KUBECONFIG_FILE set-context core --user $CORE_USER --cluster $CORE_CLUSTER
-kubectl --kubeconfig=kubeconfig create secret generic --from-file=./spinnaker-kubeconfig spin-kubeconfig -n spinnaker
+kubectl --kubeconfig=kubeconfig create secret generic --from-file=./spinnaker-kubeconfig --from-file=./gcp-service-account.json spin-secrets -n spinnaker
+
+# install spinaker
+kubectl --kubeconfig=kubeconfig apply -f haliard-install.yaml

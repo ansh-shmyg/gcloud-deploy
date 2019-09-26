@@ -1,0 +1,332 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: spin-cli-install
+  namespace: spinnaker
+spec:
+  backoffLimit: 6
+  completions: 1
+  parallelism: 1
+  template:
+    metadata:
+      labels:
+        app: spin-cli-install
+    spec:
+      containers:
+      - command:
+        - sh
+        - -xe
+        - /opt/spin/scripts/upload-pipelines.sh
+        image: comarada/spin-cli
+        imagePullPolicy: IfNotPresent
+        name: spin-cli-install
+        volumeMounts:
+        - mountPath: /opt/spin/scripts
+          name: spin-cli-install-config
+      restartPolicy: OnFailure
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: spin-cli-install-config
+        name: spin-cli-install-config
+      restartPolicy: OnFailure
+---
+apiVersion: v1
+data:
+  upload-pipelines.sh: |
+    #!/bin/sh
+    export SPIN_CLI="spin --gate-endpoint http://spin-gate.spinnaker.svc:8084"
+    cd /opt/spin/scripts/
+
+    echo "Creating spinnaker applications"
+    $SPIN_CLI application save --application-name logicapp --owner-email devops-kv53@softserve.com --cloud-providers "kubernetes"
+    $SPIN_CLI application save --application-name queryapp --owner-email devops-kv53@softserve.com --cloud-providers "kubernetes"
+    $SPIN_CLI application save --application-name cfgmanapp --owner-email devops-kv53@softserve.com --cloud-providers "kubernetes"
+    $SPIN_CLI application save --application-name frontendapp --owner-email devops-kv53@softserve.com --cloud-providers "kubernetes"
+
+    echo "Applying pipelines"
+    $SPIN_CLI pipeline save --file pipeline_spin_logicapp.json 
+    $SPIN_CLI pipeline save --file pipeline_spin_queryapp.json 
+    $SPIN_CLI pipeline save --file pipeline_spin_confmanapp.json 
+    $SPIN_CLI pipeline save --file pipeline_spin_frontendapp.json 
+  pipeline_spin_confmanapp.json: |
+    {
+     "application": "cfgmanapp",
+     "expectedArtifacts": [
+      {
+       "defaultArtifact": {
+        "artifactAccount": "gcs-${google_project_name}",
+        "id": "447fdcdf-91fc-47be-afac-6a0215d49855",
+        "name": "gs://${google_project_name}-spinnaker-conf/confman/ready_kub_dev.yaml",
+        "reference": "gs://${google_project_name}-spinnaker-conf/confman/ready_kub_dev.yaml",
+        "type": "gcs/object"
+       },
+       "displayName": "fluffy-mouse-5",
+       "id": "438cbba3-354f-46b9-9205-bfbf7eeef2b5",
+       "matchArtifact": {
+        "artifactAccount": "gcs-${google_project_name}",
+        "id": "10cb1c99-1df7-4cca-bcdd-ff6b180698df",
+        "name": "gs://${google_project_name}-spinnaker-conf/confman/ready_kub_dev.yaml",
+        "type": "gcs/object"
+       },
+       "useDefaultArtifact": true,
+       "usePriorArtifact": false
+      }
+     ],
+     "id": "097364cb-6b54-481b-8ddd-c90042c7c3dd",
+     "index": 0,
+     "keepWaitingPipelines": false,
+     "lastModifiedBy": "anonymous",
+     "limitConcurrent": true,
+     "name": "cfgmanapp-build",
+     "parameterConfig": [],
+     "stages": [
+      {
+       "account": "core",
+       "cloudProvider": "kubernetes",
+       "manifestArtifactAccount": "gcs-${google_project_name}",
+       "manifestArtifactId": "438cbba3-354f-46b9-9205-bfbf7eeef2b5",
+       "moniker": {
+        "app": "cfgmanapp"
+       },
+       "name": "Deploy (Manifest)",
+       "refId": "1",
+       "requisiteStageRefIds": [],
+       "skipExpressionEvaluation": false,
+       "source": "artifact",
+       "trafficManagement": {
+        "enabled": false,
+        "options": {
+         "enableTraffic": false,
+         "services": []
+        }
+       },
+       "type": "deployManifest"
+      }
+     ],
+     "triggers": [
+      {
+       "enabled": true,
+       "payloadConstraints": {
+        "source": "github_kv-053-devops_cfgmanapp",
+        "status": "SUCCESS"
+       },
+       "pubsubSystem": "google",
+       "subscriptionName": "spinnaker-subscription",
+       "type": "pubsub"
+      }
+     ],
+     "updateTs": "1568314566748"
+    }
+  pipeline_spin_frontendapp.json: |
+    {
+     "application": "frontendapp",
+     "expectedArtifacts": [
+      {
+       "defaultArtifact": {
+        "artifactAccount": "gcs-${google_project_name}",
+        "id": "2551d0f3-9b4b-4a2f-a4d3-e4285f2c3f86",
+        "name": "gs://${google_project_name}-spinnaker-conf/frontendapp/ready_kub_dev.yaml",
+        "reference": "gs://${google_project_name}-spinnaker-conf/frontendapp/ready_kub_dev.yaml",
+        "type": "gcs/object"
+       },
+       "displayName": "old-dingo-40",
+       "id": "c7f3ee1d-e510-4086-a356-5a73748db20d",
+       "matchArtifact": {
+        "artifactAccount": "gcs-${google_project_name}",
+        "id": "2c4d7898-9e38-43b1-8c88-95e22be2e091",
+        "name": "gs://${google_project_name}-spinnaker-conf/frontendapp/ready_kub_dev.yaml",
+        "type": "gcs/object"
+       },
+       "useDefaultArtifact": true,
+       "usePriorArtifact": false
+      }
+     ],
+     "id": "84ba9989-b686-46b8-afca-8cd2563ef23b",
+     "index": 0,
+     "keepWaitingPipelines": false,
+     "lastModifiedBy": "anonymous",
+     "limitConcurrent": true,
+     "name": "frontendapp-build",
+     "stages": [
+      {
+       "account": "core",
+       "cloudProvider": "kubernetes",
+       "manifestArtifactAccount": "gcs-${google_project_name}",
+       "manifestArtifactId": "c7f3ee1d-e510-4086-a356-5a73748db20d",
+       "moniker": {
+        "app": "frontendapp"
+       },
+       "name": "Deploy (Manifest)",
+       "refId": "1",
+       "requisiteStageRefIds": [],
+       "skipExpressionEvaluation": false,
+       "source": "artifact",
+       "trafficManagement": {
+        "enabled": false,
+        "options": {
+         "enableTraffic": false,
+         "services": []
+        }
+       },
+       "type": "deployManifest"
+      }
+     ],
+     "triggers": [
+      {
+       "enabled": true,
+       "payloadConstraints": {
+        "source": "github_kv-053-devops_frontendapp",
+        "status": "SUCCESS"
+       },
+       "pubsubSystem": "google",
+       "subscriptionName": "spinnaker-subscription",
+       "type": "pubsub"
+      }
+     ],
+     "updateTs": "1568317176787"
+    }
+  pipeline_spin_logicapp.json: |
+    {
+     "application": "logicapp",
+     "expectedArtifacts": [
+      {
+       "defaultArtifact": {
+        "artifactAccount": "gcs-${google_project_name}",
+        "id": "8dce9c56-3d8e-4577-bc92-e415a5ac2cbc",
+        "name": "gs://${google_project_name}-spinnaker-conf/logicapp/ready_kub_dev.yaml",
+        "reference": "gs://${google_project_name}-spinnaker-conf/logicapp/ready_kub_dev.yaml",
+        "type": "gcs/object"
+       },
+       "displayName": "itchy-chipmunk-31",
+       "id": "d61aa3a9-deac-4ce9-b918-103f7117155f",
+       "matchArtifact": {
+        "artifactAccount": "gcs-${google_project_name}",
+        "id": "2bc4391a-ddef-48d8-916a-60a28d08a1c7",
+        "name": "gs://${google_project_name}-spinnaker-conf/logicapp/ready_kub_dev.yaml",
+        "type": "gcs/object"
+       },
+       "useDefaultArtifact": true,
+       "usePriorArtifact": false
+      }
+     ],
+     "id": "f6497fb1-a383-4ed9-bfbb-2a83fd0bc55f",
+     "index": 0,
+     "keepWaitingPipelines": false,
+     "lastModifiedBy": "anonymous",
+     "limitConcurrent": true,
+     "name": "logicapp-build",
+     "stages": [
+      {
+       "account": "core",
+       "cloudProvider": "kubernetes",
+       "manifestArtifactAccount": "gcs-${google_project_name}",
+       "manifestArtifactId": "d61aa3a9-deac-4ce9-b918-103f7117155f",
+       "moniker": {
+        "app": "logicapp"
+       },
+       "name": "Deploy (Manifest)",
+       "refId": "1",
+       "requisiteStageRefIds": [],
+       "skipExpressionEvaluation": false,
+       "source": "artifact",
+       "trafficManagement": {
+        "enabled": false,
+        "options": {
+         "enableTraffic": false,
+         "services": []
+        }
+       },
+       "type": "deployManifest"
+      }
+     ],
+     "triggers": [
+      {
+       "enabled": true,
+       "payloadConstraints": {
+        "source": "github_kv-053-devops_logicapp",
+        "status": "SUCCESS"
+       },
+       "pubsubSystem": "google",
+       "subscriptionName": "spinnaker-subscription",
+       "type": "pubsub"
+      }
+     ],
+     "updateTs": "1568316829743"
+    }
+  pipeline_spin_queryapp.json: |
+    {
+     "application": "queryapp",
+     "expectedArtifacts": [
+      {
+       "defaultArtifact": {
+        "artifactAccount": "gcs-${google_project_name}",
+        "id": "17318591-1d72-44cd-9f94-d17486d8b8d4",
+        "name": "gs://${google_project_name}-spinnaker-conf/queryapp/ready_kub_dev.yaml",
+        "reference": "gs://${google_project_name}-spinnaker-conf/queryapp/ready_kub_dev.yaml",
+        "type": "gcs/object"
+       },
+       "displayName": "lazy-vampirebat-91",
+       "id": "5d09be1d-7b4d-4dff-a05f-55d31caf4cfa",
+       "matchArtifact": {
+        "artifactAccount": "gcs-${google_project_name}",
+        "id": "3d006036-bbe7-47e9-a0d7-fa2ca7562352",
+        "name": "gs://${google_project_name}-spinnaker-conf/queryapp/ready_kub_dev.yaml",
+        "type": "gcs/object"
+       },
+       "useDefaultArtifact": true,
+       "usePriorArtifact": false
+      }
+     ],
+     "id": "360ee9eb-7c93-4deb-b7e4-168cc75887dc",
+     "index": 0,
+     "keepWaitingPipelines": false,
+     "lastModifiedBy": "anonymous",
+     "limitConcurrent": true,
+     "name": "queryapp-build",
+     "stages": [
+      {
+       "account": "core",
+       "cloudProvider": "kubernetes",
+       "manifestArtifactAccount": "gcs-${google_project_name}",
+       "manifestArtifactId": "5d09be1d-7b4d-4dff-a05f-55d31caf4cfa",
+       "moniker": {
+        "app": "queryapp"
+       },
+       "name": "Deploy (Manifest)",
+       "refId": "1",
+       "requisiteStageRefIds": [],
+       "skipExpressionEvaluation": false,
+       "source": "artifact",
+       "trafficManagement": {
+        "enabled": false,
+        "options": {
+         "enableTraffic": false,
+         "services": []
+        }
+       },
+       "type": "deployManifest"
+      }
+     ],
+     "triggers": [
+      {
+       "enabled": true,
+       "payloadConstraints": {
+        "source": "github_kv-053-devops_queryapp",
+        "status": "SUCCESS"
+       },
+       "pubsubSystem": "google",
+       "subscriptionName": "spinnaker-subscription",
+       "type": "pubsub"
+      }
+     ],
+     "updateTs": "1568317019876"
+    }
+kind: ConfigMap
+metadata:
+  labels:
+    app: spin-cli-install
+  name: spin-cli-install-config
+  namespace: spinnaker
+---
