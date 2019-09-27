@@ -7,9 +7,9 @@ do
  sleep 4
  echo "Waiting for spinnaker pods ...."
  (( i++ ))
- if [ $i -gt  225 ]
+ if [ $i -gt 300 ]
 	then 
-	    echo "ERROR:  Spinnaker pods have not ready in 15 minutes"
+	    echo "ERROR:  Spinnaker pods have not ready in 20 minutes"
 		exit
 	fi
 done
