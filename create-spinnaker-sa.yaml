@@ -37,9 +37,9 @@ rules:
   resources: ["services/proxy", "pods/portforward"]
   verbs: ["create", "delete", "deletecollection", "get", "list", "patch", "update", "watch"]
 # Istio gateways
-#- apiGroups: ["networking.istio.io"]
-#  resources: ["*"]
-#  verbs: ["*"]
+- apiGroups: ["networking.istio.io"]
+  resources: ["*"]
+  verbs: ["*"]
 - apiGroups: ["networking.k8s.io"]
   resources: ["*"]
   verbs: ["*"]
