@@ -36,6 +36,14 @@ rules:
 - apiGroups: [""]
   resources: ["services/proxy", "pods/portforward"]
   verbs: ["create", "delete", "deletecollection", "get", "list", "patch", "update", "watch"]
+# Istio gateways
+#- apiGroups: ["networking.istio.io"]
+#  resources: ["*"]
+#  verbs: ["*"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["*"]
+  verbs: ["*"]
+
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
