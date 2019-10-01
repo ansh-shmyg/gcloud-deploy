@@ -22,6 +22,7 @@ data:
     --kubeconfig-file $KUBECONFIG_FULL \
     --only-spinnaker-managed true \
     --omit-namespaces=kube-system,kube-public \
+    --live-manifest-calls true \
     --context core
 
     $HAL_COMMAND config deploy edit \
