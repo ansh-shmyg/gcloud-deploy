@@ -86,7 +86,7 @@ variable "machine_type_cluster" {
 
 
 variable "kubernetes_ver" {
-  default = "1.13.7-gke.8"
+  default = "1.13"
 }
 
 variable "logicapp_conf_query_url" {
