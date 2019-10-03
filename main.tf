@@ -91,8 +91,7 @@ resource "google_container_cluster" "primary" {
   min_master_version = "${var.kubernetes_ver}"
   network     = "${google_compute_network.private_network.self_link}"
 
- 
- remove_default_node_pool = true
+  remove_default_node_pool = true
   initial_node_count = 1
 
   master_auth {
@@ -172,10 +171,10 @@ data "template_file" "spinnaker_chart" {
   }
 }
 
-data "template_file" "istio_chart" {
-  template = file("templates/istio/istio-values.yaml")
-}
-
+#data "template_file" "istio_chart" {
+#  template = file("templates/istio-chart-template.yaml")
+#}
+  
 data "template_file" "template_pipeline_spin_cfgmanapp" {
   template = file("templates/template_pipeline_spin_cfgmanapp.json")
 
@@ -217,7 +216,6 @@ data "template_file" "spinnaker_install_sh" {
   }
 }
 
-
 resource "local_file" "template_pipeline_spin_queryapp" {
   content  = data.template_file.template_pipeline_spin_queryapp.rendered
   filename = "pipeline_spin_queryapp.json"
@@ -255,11 +253,13 @@ resource "local_file" "spinnaker_install_sh" {
   filename = "create-spin-kub-file.sh"
 }
 
-resource "local_file" "istio_chart" {
-  content = data.template_file.istio_chart.rendered
-  filename = "istio-values.yaml"
-}
+#resource "local_file" "istio_chart" {
+#  content = data.template_file.istio_chart.rendered
+#  filename = "istio-chart-template.yaml"
+#}
 
+  
+  
 resource "google_service_account" "spinnaker-store-sa" {
   account_id   = "spinnaker-store-sa-id"
   display_name = "Spinnaker-store-sa"
@@ -371,8 +371,8 @@ resource "kubernetes_namespace" "istio-system" {
   }
   depends_on = ["google_container_node_pool.primary"]
 }
-
-
+  
+  
 resource "kubernetes_config_map" "logicapp-env-conf" {
   metadata {
     name = "logicapp-env-vars"
@@ -433,11 +433,11 @@ kubectl config use-context ${var.cluster_name} --kubeconfig=${local_file.kubecon
 kubectl apply -f create-helm-service-account.yml --kubeconfig=${local_file.kubeconfig.filename}
 helm init --service-account helm --upgrade --wait --kubeconfig=${local_file.kubeconfig.filename}
 helm install -n spin stable/spinnaker --namespace spinnaker -f ${local_file.spinnaker_chart.filename} --timeout 600 --version 1.8.1 --wait --kubeconfig=${local_file.kubeconfig.filename}
-helm install istio.io/istio-init --name istio-init --namespace istio-system --kubeconfig=${local_file.kubeconfig.filename}
 bash forward_spin_gate.sh
-helm install istio.io/istio --name istio --namespace istio-system -f ${local_file.istio_chart.filename} --kubeconfig=${local_file.kubeconfig.filename}
-bash forward_istio.sh
 LOCAL_EXEC
   }
-  depends_on = ["google_container_node_pool.primary","local_file.kubeconfig","kubernetes_namespace.spinnaker","local_file.spinnaker_chart","google_storage_bucket_iam_binding.spinnaker-bucket-iam","google_pubsub_subscription_iam_binding.spinnaker_pubsub_iam_read","local_file.spinnaker_install_sh"]
+  depends_on = ["google_container_node_pool.primary","local_file.kubeconfig","kubernetes_namespace.spinnaker","local_file.spinnaker_chart","local_file.spinnaker_chart","google_storage_bucket_iam_binding.spinnaker-bucket-iam","google_pubsub_subscription_iam_binding.spinnaker_pubsub_iam_read","local_file.spinnaker_install_sh"]
 }
+#helm repo add banzaicloud-stable http://kubernetes-charts.banzaicloud.com/branch/master
+#helm repo update
+#helm install banzaicloud-stable/istio --name istio --namespace istio-system  -f ./istio-chart-template.yaml --kubeconfig=${local_file.kubeconfig.filename}
