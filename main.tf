@@ -372,7 +372,7 @@ resource "kubernetes_config_map" "logicapp-env-conf-prod" {
   }
 
   data = {
-    logicapp-app-query-url = "${var.logicapp_conf_query_url}"
+    logicapp-app-query-url = "${var.logicapp_conf_query_url_prod}"
   }
   depends_on = ["kubernetes_namespace.prod"]
 }
@@ -398,9 +398,9 @@ resource "kubernetes_config_map" "frontendapp-env-conf-prod" {
   }
 
   data = {
-    app_query_url = "${var.frontendapp_app_query_url}"
-    app_settings_url = "${var.frontendapp_app_settings_url}"
-    app_settings_save_url = "${var.frontendapp_app_settings_save_url}"
+    app_query_url = "${var.frontendapp_app_query_url_prod}"
+    app_settings_url = "${var.frontendapp_app_settings_url_prod}"
+    app_settings_save_url = "${var.frontendapp_app_settings_save_url_prod}"
   }
   depends_on = ["kubernetes_namespace.prod"]
 }
@@ -424,7 +424,7 @@ resource "kubernetes_config_map" "queryapp-env-conf-prod" {
   }
 
   data = {
-    config_api_url = "${var.queryapp_config_api_url}"
+    config_api_url = "${var.queryapp_config_api_url_prod}"
   }
   depends_on = ["kubernetes_namespace.prod"]
 }
