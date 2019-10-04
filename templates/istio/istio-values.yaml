@@ -56,7 +56,27 @@ mixer:
  
 grafana:
   enabled: true
-
+    image:
+        repository: devops53/empikls
+        tag: latest
+    dashboardProviders:
+        dashboardproviders.yaml:
+            apiVersion: 1
+            providers:
+            -   name: 'istio'
+                orgId: 1
+                folder: 'istio'
+                type: file
+                disableDeletion: false
+                options:
+                path: /var/lib/grafana/dashboards/istio
+            -   name: 'our'
+                orgId: 1
+                folder: 'our'
+                type: file
+                disableDeletion: false
+                options:
+                path: /var/lib/grafana/dashboards/our
 tracing:
   enabled: true
 
