@@ -1,0 +1,38 @@
+---
+apiVersion: v1
+data:
+  script.sh: |-
+    #!/bin/bash
+    sleep 15
+    URL="$1"
+    status_code=$(curl -s -o /dev/null -w %{http_code} $URL)
+    if [[ "$status_code" == "200" ]]; then
+      echo SPINNAKER_PROPERTY_RELEASE=Success
+    else
+      echo exit
+      exit 0
+    fi
+kind: ConfigMap
+metadata:
+  name: script-configmap-dev
+  namespace: spinnaker
+  #namespace: dev
+---
+apiVersion: v1
+data:
+  script.sh: |-
+    #!/bin/bash
+    URL="$1"
+    status_code=$(curl -s -o /dev/null -w %{http_code} $URL)
+    if [[ "$status_code" == "200" ]]; then
+      echo SPINNAKER_PROPERTY_RELEASE=Success
+    else
+      echo SPINNAKER_PROPERTY_RELEASE=Failure
+      exit 0
+    fi
+kind: ConfigMap
+metadata:
+  name: script-configmap-prod
+  namespace: spinnaker
+  #namespace: prod
+---

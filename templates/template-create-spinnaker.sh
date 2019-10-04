@@ -25,5 +25,7 @@ kubectl config --kubeconfig=$KUBECONFIG_FILE set-credentials $CORE_USER --token 
 kubectl config --kubeconfig=$KUBECONFIG_FILE set-context core --user $CORE_USER --cluster $CORE_CLUSTER
 kubectl --kubeconfig=kubeconfig create secret generic --from-file=./spinnaker-kubeconfig --from-file=./gcp-service-account.json spin-secrets -n spinnaker
 
+# Install konfig Maps for tests
+kubectl --kubeconfig=kubeconfig apply -f spin-config/tests-config-maps.yaml
 # install spinaker
 kubectl --kubeconfig=kubeconfig apply -f haliard-install.yaml

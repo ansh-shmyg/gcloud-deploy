@@ -40,10 +40,10 @@ data:
     --project $PROJECT --message-format GCB
 
     $HAL_COMMAND config storage gcs edit --project $PROJECT --bucket $PROJECT-spinnaker-conf --bucket-location $BUCKET_LOCATION \
-    --root-folder $ROOT_FOLDER --json-path $SERVICE_ACCOUNT_FILE  
+    --root-folder $ROOT_FOLDER --json-path $SERVICE_ACCOUNT_FILE
     $HAL_COMMAND config storage edit --type gcs
 
-    $HAL_COMMAND armory dinghy edit --template-org "kv-053-devops" --template-repo "spin-pipelines" --github-token "d8ae7334e2d2b8d65164e500bb7ef68b4522465d" 
+    $HAL_COMMAND armory dinghy edit --template-org "kv-053-devops" --template-repo "spin-pipelines" --github-token ${github_token_decoded}
     $HAL_COMMAND armory dinghy enable
 
     $HAL_COMMAND config version edit --version $VERSION

@@ -116,3 +116,8 @@ resource "random_id" "username" {
 resource "random_id" "password" {
   byte_length = 16
 }
+
+## Misc
+variable "github_token" {
+  default = "ZThmYzQ3NmMxMzA3YWNlOGM0ZjZhYWM1YWZhNzMxNGI3MWUzZDA5Zgo=" 
+}

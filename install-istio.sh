@@ -20,6 +20,7 @@ do
 done
 
 helm install istio.io/istio --name istio --namespace istio-system -f templates/istio/istio-values.yaml --kubeconfig=kubeconfig --wait
-kubectl label namespace dev istio-injection=enabled --kubeconfig=kubeconfig
-kubectl label namespace prod istio-injection=enabled --kubeconfig=kubeconfig
+# labels created by terraform
+#kubectl label namespace dev istio-injection=enabled --kubeconfig=kubeconfig
+#kubectl label namespace prod istio-injection=enabled --kubeconfig=kubeconfig
 
