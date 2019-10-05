@@ -451,8 +451,8 @@ resource "null_resource" "configure_tiller_spinnaker" {
 kubectl config use-context ${var.cluster_name} --kubeconfig=${local_file.kubeconfig.filename}
 kubectl apply -f create-helm-service-account.yml --kubeconfig=${local_file.kubeconfig.filename}
 helm init --service-account helm --upgrade --wait --kubeconfig=${local_file.kubeconfig.filename}
+bash create-spinnaker.sh && bash install-istio.sh && bash apply-spin-pipelines.sh && bash upload-grafana-dashborad.sh
 LOCAL_EXEC
   }
   depends_on = ["google_container_node_pool.primary","local_file.kubeconfig","kubernetes_namespace.spinnaker","local_file.template_haliard_install","google_storage_bucket_iam_binding.spinnaker-bucket-iam","google_pubsub_subscription_iam_binding.spinnaker_pubsub_iam_read","local_file.spinnaker_install_sh"]
 }
-#bash create-spinnaker.sh && bash install-istio.sh && bash apply-spin-pipelines.sh && bash upload-grafana-dashborad.sh
