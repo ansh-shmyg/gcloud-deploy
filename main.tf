@@ -112,7 +112,7 @@ resource "google_container_node_pool" "primary" {
   node_count = 1
 
   node_config {
-    preemptible  = true
+    #preemptible  = true
     machine_type = "${var.machine_type_cluster}"
 
     metadata = {
@@ -160,97 +160,78 @@ data "template_file" "kubeconfig" {
   }
 }
 
-data "template_file" "spinnaker_chart" {
-  template = file("templates/spinnaker-chart-template.yaml")
+#data "template_file" "spinnaker_chart" {
+#  template = file("templates/spinnaker-chart-template.yaml")
+#
+#  vars = {
+#    google_project_name = "${var.project_name}"
+#    google_spin_bucket_name = "${google_storage_bucket.spinnaker-store.name}"
+#    google_subscription_name = "${google_pubsub_subscription.spinnaker_pubsub_subscription.name}"
+#    google_spin_sa_key = "${base64decode(google_service_account_key.spinnaker-store-sa-key.private_key)}"
+#  }
+#}
+
+data "template_file" "google_gcp_sa" {
+  template = file("templates/template-gcp-service-account.json")
 
   vars = {
-    google_project_name = "${var.project_name}"
-    google_spin_bucket_name = "${google_storage_bucket.spinnaker-store.name}"
-    google_subscription_name = "${google_pubsub_subscription.spinnaker_pubsub_subscription.name}"
     google_spin_sa_key = "${base64decode(google_service_account_key.spinnaker-store-sa-key.private_key)}"
   }
 }
 
+
 #data "template_file" "istio_chart" {
 #  template = file("templates/istio-chart-template.yaml")
 #}
+
+data "template_file" "template_pipelines_spin_upload" {
+  template = file("templates/template-spin-cli-upload-pipelines.yaml")
+
+  vars = {
+    google_project_name = "${var.project_name}"
+  }
+}
+
+data "template_file" "template_haliard_install" {
+  template = file("templates/template-haliard-install.yaml")
+
+  vars = {
+    google_project_name = "${var.project_name}"
+    github_token_decoded = "${base64decode(var.github_token)}"
+  }
+}
   
-data "template_file" "template_pipeline_spin_cfgmanapp" {
-  template = file("templates/template_pipeline_spin_cfgmanapp.json")
-
-  vars = {
-    google_project_name = "${var.project_name}"
-  }
-}
-
-data "template_file" "template_pipeline_spin_frontendapp" {
-  template = file("templates/template_pipeline_spin_frontendapp.json")
-
-  vars = {
-    google_project_name = "${var.project_name}"
-  }
-}
-
-data "template_file" "template_pipeline_spin_logicapp" {
-  template = file("templates/template_pipeline_spin_logicapp.json")
-
-  vars = {
-    google_project_name = "${var.project_name}"
-  }
-}
-
-
-data "template_file" "template_pipeline_spin_queryapp" {
-  template = file("templates/template_pipeline_spin_queryapp.json")
-
-  vars = {
-    google_project_name = "${var.project_name}"
-  }
-}
-
 data "template_file" "spinnaker_install_sh" {
-  template = file("templates/create-spin-kub-file.sh-template")
+  template = file("templates/template-create-spinnaker.sh")
 
   vars = {
     cluster_name = "${var.cluster_name}"
   }
 }
 
-resource "local_file" "template_pipeline_spin_queryapp" {
-  content  = data.template_file.template_pipeline_spin_queryapp.rendered
-  filename = "pipeline_spin_queryapp.json"
+resource "local_file" "template_haliard_install" {
+  content  = data.template_file.template_haliard_install.rendered
+  filename = "haliard-install.yaml"
 }
 
-resource "local_file" "template_pipeline_spin_logicapp" {
-  content  = data.template_file.template_pipeline_spin_logicapp.rendered
-  filename = "pipeline_spin_logicapp.json"
+resource "local_file" "file_google_gcp_sa" {
+  content  = data.template_file.google_gcp_sa.rendered
+  filename = "gcp-service-account.json"
 }
 
-resource "local_file" "template_pipeline_spin_frontendapp" {
-  content  = data.template_file.template_pipeline_spin_frontendapp.rendered
-  filename = "pipeline_spin_frontendapp.json"
+resource "local_file" "template_pipelines_spin_upload" {
+  content  = data.template_file.template_pipelines_spin_upload.rendered
+  filename = "spin-cli-upload-pipelines.yaml"
 }
-
-
-resource "local_file" "template_pipeline_spin_cfgmanapp" {
-  content  = data.template_file.template_pipeline_spin_cfgmanapp.rendered
-  filename = "pipeline_spin_confmanapp.json"
-}
-
 
 resource "local_file" "kubeconfig" {
   content  = data.template_file.kubeconfig.rendered
   filename = "kubeconfig"
 }
 
-resource "local_file" "spinnaker_chart" {
-  content  = data.template_file.spinnaker_chart.rendered
-  filename = "spinnaker-chart.yaml"
-}
-
 resource "local_file" "spinnaker_install_sh" {
   content  = data.template_file.spinnaker_install_sh.rendered
-  filename = "create-spin-kub-file.sh"
+  filename = "create-spinnaker.sh"
 }
 
 resource "google_service_account" "spinnaker-store-sa" {
@@ -340,6 +321,9 @@ resource "google_pubsub_subscription_iam_binding" "spinnaker_pubsub_iam_read" {
 resource "kubernetes_namespace" "prod" {
   metadata {
     name = "prod"
+    labels =  {
+      istio-injection = "enabled" 
+    }
   }
   depends_on = ["google_container_node_pool.primary"]
 }
@@ -347,6 +331,9 @@ resource "kubernetes_namespace" "prod" {
 resource "kubernetes_namespace" "dev" {
   metadata {
     name = "dev"
+    labels =  {
+      istio-injection = "enabled" 
+    }
   }
   depends_on = ["google_container_node_pool.primary"]
 }
@@ -366,7 +353,7 @@ resource "kubernetes_namespace" "istio-system" {
 }
   
   
-resource "kubernetes_config_map" "logicapp-env-conf" {
+resource "kubernetes_config_map" "logicapp-env-conf-dev" {
   metadata {
     name = "logicapp-env-vars"
     namespace = "dev"
@@ -378,7 +365,19 @@ resource "kubernetes_config_map" "logicapp-env-conf" {
   depends_on = ["kubernetes_namespace.dev"]
 }
 
-resource "kubernetes_config_map" "frontendapp-env-conf" {
+resource "kubernetes_config_map" "logicapp-env-conf-prod" {
+  metadata {
+    name = "logicapp-env-vars"
+    namespace = "prod"
+  }
+
+  data = {
+    logicapp-app-query-url = "${var.logicapp_conf_query_url_prod}"
+  }
+  depends_on = ["kubernetes_namespace.prod"]
+}
+
+resource "kubernetes_config_map" "frontendapp-env-conf-dev" {
   metadata {
     name = "frontendapp-env-vars"
     namespace = "dev"
@@ -392,7 +391,21 @@ resource "kubernetes_config_map" "frontendapp-env-conf" {
   depends_on = ["kubernetes_namespace.dev"]
 }
 
-resource "kubernetes_config_map" "queryapp-env-conf" {
+resource "kubernetes_config_map" "frontendapp-env-conf-prod" {
+  metadata {
+    name = "frontendapp-env-vars"
+    namespace = "prod"
+  }
+
+  data = {
+    app_query_url = "${var.frontendapp_app_query_url_prod}"
+    app_settings_url = "${var.frontendapp_app_settings_url_prod}"
+    app_settings_save_url = "${var.frontendapp_app_settings_save_url_prod}"
+  }
+  depends_on = ["kubernetes_namespace.prod"]
+}
+
+resource "kubernetes_config_map" "queryapp-env-conf-dev" {
   metadata {
     name = "queryapp-env-vars"
     namespace = "dev"
@@ -403,10 +416,23 @@ resource "kubernetes_config_map" "queryapp-env-conf" {
   }
   depends_on = ["kubernetes_namespace.dev"]
 }
-resource "kubernetes_secret" "credentials_db" {
+
+resource "kubernetes_config_map" "queryapp-env-conf-prod" {
+  metadata {
+    name = "queryapp-env-vars"
+    namespace = "prod"
+  }
+
+  data = {
+    config_api_url = "${var.queryapp_config_api_url_prod}"
+  }
+  depends_on = ["kubernetes_namespace.prod"]
+}
+
+resource "kubernetes_secret" "credentials_db_prod" {
   metadata {
     name = "credentials-db"
-    namespace = "dev"
+    namespace = "prod"
   }
 
   data = {
@@ -415,22 +441,19 @@ resource "kubernetes_secret" "credentials_db" {
     db_name = module.postgres.db_name
     db_address = module.postgres.master_private_ip_address
   }
-  depends_on = ["kubernetes_namespace.dev"]
+  depends_on = ["kubernetes_namespace.prod"]
 }
+
 
 resource "null_resource" "configure_tiller_spinnaker" {
   provisioner "local-exec" {
     command = <<LOCAL_EXEC
-bash create-spin-kub-file.sh
 kubectl config use-context ${var.cluster_name} --kubeconfig=${local_file.kubeconfig.filename}
 kubectl apply -f create-helm-service-account.yml --kubeconfig=${local_file.kubeconfig.filename}
 helm init --service-account helm --upgrade --wait --kubeconfig=${local_file.kubeconfig.filename}
-helm install -n spin stable/spinnaker --namespace spinnaker -f ${local_file.spinnaker_chart.filename} --timeout 600 --version 1.8.1 --wait --kubeconfig=${local_file.kubeconfig.filename}
-bash forward_spin_gate.sh
+bash create-spinnaker.sh && bash install-istio.sh && bash apply-spin-pipelines.sh && bash upload-grafana-dashborad.sh
 LOCAL_EXEC
   }
-  depends_on = ["google_container_node_pool.primary","local_file.kubeconfig","kubernetes_namespace.spinnaker","local_file.spinnaker_chart","local_file.spinnaker_chart","google_storage_bucket_iam_binding.spinnaker-bucket-iam","google_pubsub_subscription_iam_binding.spinnaker_pubsub_iam_read","local_file.spinnaker_install_sh"]
+  depends_on = ["google_container_node_pool.primary","local_file.kubeconfig","kubernetes_namespace.spinnaker","local_file.template_haliard_install","google_storage_bucket_iam_binding.spinnaker-bucket-iam","google_pubsub_subscription_iam_binding.spinnaker_pubsub_iam_read","local_file.spinnaker_install_sh"]
 }
-#helm repo add banzaicloud-stable http://kubernetes-charts.banzaicloud.com/branch/master
-#helm repo update
-#helm install banzaicloud-stable/istio --name istio --namespace istio-system  -f ./istio-chart-template.yaml --kubeconfig=${local_file.kubeconfig.filename}
+

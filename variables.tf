@@ -86,27 +86,47 @@ variable "machine_type_cluster" {
 
 
 variable "kubernetes_ver" {
-  default = "1.13.7-gke.8"
+  default = "1.13"
 }
 
 variable "logicapp_conf_query_url" {
   default = "http://queryapp.dev.svc:5003/query/yml_data"
 }
 
+variable "logicapp_conf_query_url_prod" {
+  default = "http://queryapp.prod.svc.cluster.local:5003/query/yml_data"
+}
+
 variable "frontendapp_app_query_url" {
   default = "http://logicapp.dev.svc:5002/logic/query_data"
+}
+
+variable "frontendapp_app_query_url_prod" {
+  default = "http://logicapp.prod.svc.cluster.local:5002/logic/query_data"
 }
 
 variable "frontendapp_app_settings_url" {
   default = "http://cfgmanapp.dev.svc:5004/start"
 }
 
+variable "frontendapp_app_settings_url_prod" {
+  default = "http://cfgmanapp.prod.svc.cluster.local:5004/start"
+}
+
 variable "frontendapp_app_settings_save_url" {
   default = "http://cfgmanapp.dev.svc:5004/save"
 }
 
+variable "frontendapp_app_settings_save_url_prod" {
+  default = "http://cfgmanapp.prod.svc.cluster.local:5004/save"
+}
+
 variable "queryapp_config_api_url" {
   default = "http://cfgmanapp.dev.svc:5004/conf/query"
+}
+
+variable "queryapp_config_api_url_prod" {
+  default = "http://cfgmanapp.prod.svc.cluster.local:5004/conf/query"
 }
 
 resource "random_id" "username" {
@@ -115,4 +135,9 @@ resource "random_id" "username" {
 
 resource "random_id" "password" {
   byte_length = 16
+}
+
+## Misc
+variable "github_token" {
+  default = "ZThmYzQ3NmMxMzA3YWNlOGM0ZjZhYWM1YWZhNzMxNGI3MWUzZDA5Zgo=" 
 }

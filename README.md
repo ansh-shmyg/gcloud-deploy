@@ -12,9 +12,8 @@ Terrafrom GKE cluster, Postgres DB installation
 * Install utilities before terraform launch:
   ``` 
   jq
-  spin
   ```
-  read more here https://stedolan.github.io/jq/, https://www.spinnaker.io/setup/spin/
+  read more here https://stedolan.github.io/jq/
 * add istio repo
    helm repo add banzaicloud-stable http://kubernetes-charts.banzaicloud.com/branch/master
    helm repo update
@@ -35,4 +34,13 @@ Terrafrom GKE cluster, Postgres DB installation
 * 'terraform destroy' may fail due to dependencies error. Use bash script to avoid those errors during destroy:
   ```
   ./destroy-terraform.sh
+  ```
+## Forward local ports for connection
+* Run script "forward_ports.sh" to forward local ports for Spinnaker, Grafana, Jaeger, ... via "kubectl port-forward":
+  ```
+  ./forward_ports.sh
+  ```
+  to stop port forwarding:
+  ```
+  ./forward_ports.sh kill
   ```

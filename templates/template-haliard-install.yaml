@@ -1,0 +1,146 @@
+apiVersion: v1
+data:
+  install.sh: |
+    #!/bin/bash
+    export NAMESPACE="spinnaker"
+    export ACCOUNT_NAME="core"
+    export KUBECONFIG_FULL=~/secrests/kubeconfig
+    export PROJECT=${google_project_name}
+    export BUCKET_LOCATION=eu
+    export SERVICE_ACCOUNT_FILE=~/secrests/gcp-service-account.json
+    export ROOT_FOLDER=front
+    export VERSION=2.16.0
+
+    export DAEMON_ENDPOINT=http://armory-halyard.$NAMESPACE.svc:8064
+    export HAL_COMMAND="hal --daemon-endpoint $DAEMON_ENDPOINT"
+    # Wait for the Hal daemon to be ready
+    until $HAL_COMMAND --ready; do sleep 10 ; done
+
+    $HAL_COMMAND config provider kubernetes enable
+    $HAL_COMMAND config provider kubernetes account add $ACCOUNT_NAME \
+    --provider-version v2 \
+    --kubeconfig-file $KUBECONFIG_FULL \
+    --only-spinnaker-managed true \
+    --omit-namespaces=kube-system,kube-public \
+    --live-manifest-calls true \
+    --context core
+
+    $HAL_COMMAND config deploy edit \
+    --type distributed \
+    --account-name $ACCOUNT_NAME \
+    --location $NAMESPACE
+
+    $HAL_COMMAND config features edit --artifacts true
+    $HAL_COMMAND config artifact http enable
+    $HAL_COMMAND config artifact gcs account add gcs-$PROJECT --json-path $SERVICE_ACCOUNT_FILE
+    $HAL_COMMAND config artifact gcs enable
+
+    $HAL_COMMAND config pubsub google enable
+    $HAL_COMMAND config pubsub google subscription add spinnaker-subscription --subscription-name spinnaker-subscription --json-path $SERVICE_ACCOUNT_FILE \
+    --project $PROJECT --message-format GCB
+
+    $HAL_COMMAND config storage gcs edit --project $PROJECT --bucket $PROJECT-spinnaker-conf --bucket-location $BUCKET_LOCATION \
+    --root-folder $ROOT_FOLDER --json-path $SERVICE_ACCOUNT_FILE
+    $HAL_COMMAND config storage edit --type gcs
+
+    $HAL_COMMAND armory dinghy edit --template-org "kv-053-devops" --template-repo "spin-pipelines" --github-token ${github_token_decoded}
+    $HAL_COMMAND armory dinghy enable
+
+    $HAL_COMMAND config version edit --version $VERSION
+    $HAL_COMMAND deploy apply
+kind: ConfigMap
+metadata:
+  labels:
+    app: halyard-install
+  name: halyard-install-config
+  namespace: spinnaker
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: halyard-install
+  namespace: spinnaker
+spec:
+  backoffLimit: 6
+  completions: 1
+  parallelism: 1
+  template:
+    metadata:
+      labels:
+        app: halyard-install
+    spec:
+      containers:
+      - command:
+        - bash
+        - -xe
+        - /opt/halyard/scripts/install.sh
+        image: docker.io/armory/halyard-armory:1.7.1
+        imagePullPolicy: IfNotPresent
+        name: halyard-install
+        volumeMounts:
+        - mountPath: /opt/halyard/scripts
+          name: halyard-config
+      restartPolicy: OnFailure
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: halyard-install-config
+        name: halyard-config
+      - name: spin-secrets
+        secret:
+          secretName: spin-secrets
+          items:
+            - key: spinnaker-kubeconfig
+              path: kubeconfig
+            - key: gcp-service-account.json
+              path: gcp-service-account.json
+      restartPolicy: OnFailure
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: armory-halyard
+  namespace: spinnaker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: armory-halyard
+  template:
+    metadata:
+      labels:
+        app: armory-halyard
+    spec:
+      volumes:
+        - name: spin-secrets
+          secret:
+            secretName: spin-secrets
+            items:
+              - key: spinnaker-kubeconfig
+                path: kubeconfig
+              - key: gcp-service-account.json
+                path: gcp-service-account.json
+      containers:
+      - image: docker.io/armory/halyard-armory:1.7.1
+        name: armory-halyard
+        ports: 
+          - containerPort: 8064
+        volumeMounts:
+          - name: spin-secrets
+            mountPath: /home/spinnaker/secrests
+            readOnly: true
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: armory-halyard
+  labels:
+    app: armory-halyard
+  namespace: spinnaker
+spec:
+  ports:
+  - port: 8064
+    protocol: TCP
+  selector:
+    app: armory-halyard
