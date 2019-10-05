@@ -16,7 +16,6 @@ kind: ConfigMap
 metadata:
   name: script-configmap-dev
   namespace: spinnaker
-  #namespace: dev
 ---
 apiVersion: v1
 data:
@@ -34,5 +33,4 @@ kind: ConfigMap
 metadata:
   name: script-configmap-prod
   namespace: spinnaker
-  #namespace: prod
 ---

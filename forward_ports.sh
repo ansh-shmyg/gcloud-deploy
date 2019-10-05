@@ -29,3 +29,6 @@ ZIP_POD=$(kubectl -n istio-system get pod -l app=jaeger --kubeconfig=kubeconfig 
 kubectl -n istio-system port-forward ${ZIP_POD} 16686 --kubeconfig=kubeconfig >> /dev/null 2>&1 &
 echo "jaeger: http://localhost:16686"
 
+KIALI_POD=$(kubectl --kubeconfig=kubeconfig get pod --namespace istio-system --selector="app=kiali" --output jsonpath='{.items[0].metadata.name}')
+kubectl --kubeconfig=kubeconfig port-forward --namespace istio-system ${KIALI_POD} 20001:20001 >> /dev/null 2>&1 &
+echo "kiali: http://localhost:20001"

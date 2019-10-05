@@ -59,8 +59,8 @@ data:
        "defaultArtifact": {
         "artifactAccount": "gcs-${google_project_name}",
         "id": "2551d0f3-9b4b-4a2f-a4d3-e4285f2c3f86",
-        "name": "gs://${google_project_name}-spinnaker-conf/cfgmanapp/ready_kub_dev.yaml",
-        "reference": "gs://${google_project_name}-spinnaker-conf/cfgmanapp/ready_kub_dev.yaml",
+        "name": "gs://${google_project_name}-spinnaker-conf/confman/ready_kub_dev.yaml",
+        "reference": "gs://${google_project_name}-spinnaker-conf/confman/ready_kub_dev.yaml",
         "type": "gcs/object"
        },
        "displayName": "dev-dingo-40",
@@ -68,7 +68,7 @@ data:
        "matchArtifact": {
         "artifactAccount": "gcs-${google_project_name}",
         "id": "e1285e7c-89c0-445d-a072-df791dc5175b",
-        "name": "gs://${google_project_name}-spinnaker-conf/cfgmanapp/ready_kub_dev.yaml",
+        "name": "gs://${google_project_name}-spinnaker-conf/confman/ready_kub_dev.yaml",
         "type": "gcs/object"
        },
        "useDefaultArtifact": true,
@@ -78,8 +78,8 @@ data:
        "defaultArtifact": {
         "artifactAccount": "gcs-${google_project_name}",
         "id": "49b0301a-1492-4985-a620-88c32914dafd",
-        "name": "gs://${google_project_name}-spinnaker-conf/cfgmanapp/spin_job.yaml",
-        "reference": "gs://${google_project_name}-spinnaker-conf/cfgmanapp/spin_job.yaml",
+        "name": "gs://${google_project_name}-spinnaker-conf/confman/spin_job.yaml",
+        "reference": "gs://${google_project_name}-spinnaker-conf/confman/spin_job.yaml",
         "type": "gcs/object"
        },
        "displayName": "integration-t",
@@ -87,7 +87,7 @@ data:
        "matchArtifact": {
         "artifactAccount": "gcs-${google_project_name}",
         "id": "2b9db2b2-4d09-4000-b7a8-fd209e9344ad",
-        "name": "gs://${google_project_name}-spinnaker-conf/cfgmanapp/spin_job.yaml",
+        "name": "gs://${google_project_name}-spinnaker-conf/confman/spin_job.yaml",
         "type": "gcs/object"
        },
        "useDefaultArtifact": true,
@@ -97,8 +97,8 @@ data:
        "defaultArtifact": {
         "artifactAccount": "gcs-${google_project_name}",
         "id": "b09c99f1-86ca-4073-aa69-0a81b55a7fd0",
-        "name": "gs://${google_project_name}-spinnaker-conf/cfgmanapp/ready_kub_prod_canary.yaml",
-        "reference": "gs://${google_project_name}-spinnaker-conf/cfgmanapp/ready_kub_prod_canary.yaml",
+        "name": "gs://${google_project_name}-spinnaker-conf/confman/ready_kub_prod_canary.yaml",
+        "reference": "gs://${google_project_name}-spinnaker-conf/confman/ready_kub_prod_canary.yaml",
         "type": "gcs/object"
        },
        "displayName": "prod-canary-100",
@@ -106,7 +106,7 @@ data:
        "matchArtifact": {
         "artifactAccount": "gcs-${google_project_name}",
         "id": "b8ca6ecb-622b-4ba8-ae83-03e6450cdb65",
-        "name": "gs://${google_project_name}-spinnaker-conf/cfgmanapp/ready_kub_prod_canary.yaml",
+        "name": "gs://${google_project_name}-spinnaker-conf/confman/ready_kub_prod_canary.yaml",
         "type": "gcs/object"
        },
        "useDefaultArtifact": true,
@@ -116,8 +116,8 @@ data:
        "defaultArtifact": {
         "artifactAccount": "gcs-${google_project_name}",
         "id": "c1401e0c-cb2a-45c7-8d25-f7e87496f1fe",
-        "name": "gs://${google_project_name}-spinnaker-conf/cfgmanapp/ready_kub_prod_main.yaml",
-        "reference": "gs://${google_project_name}-spinnaker-conf/cfgmanapp/ready_kub_prod_main.yaml",
+        "name": "gs://${google_project_name}-spinnaker-conf/confman/ready_kub_prod_main.yaml",
+        "reference": "gs://${google_project_name}-spinnaker-conf/confman/ready_kub_prod_main.yaml",
         "type": "gcs/object"
        },
        "displayName": "prod-dingo-main-200",
@@ -125,7 +125,7 @@ data:
        "matchArtifact": {
         "artifactAccount": "gcs-${google_project_name}",
         "id": "1416d463-f5c7-4014-b697-c7949585dbb0",
-        "name": "gs://${google_project_name}-spinnaker-conf/cfgmanapp/ready_kub_prod_main.yaml",
+        "name": "gs://${google_project_name}-spinnaker-conf/confman/ready_kub_prod_main.yaml",
         "type": "gcs/object"
        },
        "useDefaultArtifact": true,
@@ -135,8 +135,8 @@ data:
        "defaultArtifact": {
         "artifactAccount": "gcs-${google_project_name}",
         "id": "fd0f4810-4038-4d6d-98c8-d73e8213a43a",
-        "name": "gs://${google_project_name}-spinnaker-conf/cfgmanapp/spin_job.yaml",
-        "reference": "gs://${google_project_name}-spinnaker-conf/cfgmanapp/spin_job.yaml",
+        "name": "gs://${google_project_name}-spinnaker-conf/confman/spin_job.yaml",
+        "reference": "gs://${google_project_name}-spinnaker-conf/confman/spin_job.yaml",
         "type": "gcs/object"
        },
        "displayName": "check-application-existance",
@@ -144,7 +144,7 @@ data:
        "matchArtifact": {
         "artifactAccount": "gcs-${google_project_name}",
         "id": "bec9c2f5-d395-4a3b-b135-232072081bd6",
-        "name": "gs://${google_project_name}-spinnaker-conf/cfgmanapp/spin_job.yaml",
+        "name": "gs://${google_project_name}-spinnaker-conf/confman/spin_job.yaml",
         "type": "gcs/object"
        },
        "useDefaultArtifact": true,
