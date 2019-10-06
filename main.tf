@@ -338,9 +338,9 @@ resource "kubernetes_namespace" "prod" {
 resource "kubernetes_namespace" "dev" {
   metadata {
     name = "dev"
-    labels =  {
-      istio-injection = "enabled" 
-    }
+#    labels =  {
+#      istio-injection = "enabled" 
+#    }
   }
   depends_on = ["google_container_node_pool.primary"]
 }
